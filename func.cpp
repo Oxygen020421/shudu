@@ -25,16 +25,6 @@ bool cmp(BLFS& a, BLFS& b) {
 	return a.count > b.count;
 }
 
-//int writeSudokuFinality(char** final, FILE* fp) {
-//	for (int i = 0; i < 9; i++) {
-//		for (int j = 0; j < 8; j++) {
-//			fprintf(fp, "%c ", out[i][j]);
-//		}
-//		fprintf(fp, "%c\n", out[i][8]);
-//	}
-//	fputc('\n', fp);
-//	return 0;
-//}	
 
 
 int produceOutputIntoTxt(int produce_num) {		//本函数用于生成数独终局

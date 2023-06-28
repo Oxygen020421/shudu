@@ -1,3 +1,7 @@
+/*
+* 软件工程结对编程：生成数独终局、求解数独
+* 成员：黄韵竹2011064、邹胡诚钰2013958
+*/
 #include"head.h"
 
 int main(int argc, char** argv) {
