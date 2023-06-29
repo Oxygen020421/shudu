@@ -5,6 +5,8 @@
 #include<iostream>
 #include<string>
 #include <algorithm>
+#include <set>
+#include <vector>
 
 using namespace std;
 
@@ -20,6 +22,7 @@ int getBlockNum(int x, int y);
 bool cmp(BLFS& a, BLFS& b);
 int writeSudokuFinality(char** final, FILE* fp);
 int produceOutputIntoTxt(int produce_num);
+int produceProblemIntoTxt(int produce_num, int m, int r, int t);
 int dealQuestion(char* path);
 int dfs(int num, int size);
 void setFlag(int x, int y, int i, int flag);

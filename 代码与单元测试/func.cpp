@@ -25,7 +25,160 @@ bool cmp(BLFS& a, BLFS& b) {
 	return a.count > b.count;
 }
 
+set<int> avaValues(int* m, int start) {
+	set<int> res{ 1,2,3,4,5,6,7,8,9 };
+	int row = start / 9;
+	int col = start % 9;
+	//找到每个九宫格左上角的位置
+	int urow = row / 3 * 3;
+	int ucol = col / 3 * 3;
+	for (int i = urow; i < urow + 3; i++) {
+		for (int j = ucol; j < ucol + 3; j++) {
+			res.erase(m[urow * 9 + ucol]);
+		}
+	}
+	for (int i = 0; i < 9; i++) {
+		res.erase(m[i * 9 + col]);
+		res.erase(m[row * 9 + i]);
+	}
+	return res;
+}
 
+//检查是否有解
+int checkSolves(int* m, int start, int currentSolves) {
+	if (currentSolves > 1) {
+		return currentSolves;
+	}
+	if (start >= 81) {
+		currentSolves++;
+		return currentSolves;
+	}
+	if (m[start] > 0) {
+		currentSolves = checkSolves(m, start + 1, currentSolves);
+	}
+	else {
+		set<int> values = avaValues(m, start);
+		for (int v : values) {
+			m[start] = v;
+			currentSolves = checkSolves(m, start + 1, currentSolves);
+			m[start] = 0;
+		}
+	}
+	return currentSolves;
+}
+
+void digHole(int* m, int holeIdx, int holeNums, vector<int> table, int type) {
+	if (holeIdx >= holeNums) {
+		return;
+	}
+	int randPosi = table[holeIdx];
+	int* tmp_m = new int[81];
+	for (int i = 0; i < 81; i++) {
+		tmp_m[i] = m[i];
+	}
+	tmp_m[randPosi] = 0;
+	int check = checkSolves(tmp_m, 0, 0);
+	if ((check == 1 && type == 1) || (check > 0 && type == 0)) {
+		m[randPosi] = 0;
+	}
+	digHole(m, holeIdx + 1, holeNums, table, type);
+}
+
+int digHoles(int* m, int holeNums, int type) {
+	vector<int> num_table;
+	for (int i = 0; i < 81; i++) {
+		num_table.push_back(i);
+	}
+	random_shuffle(num_table.begin(), num_table.end());
+	digHole(m, 0, holeNums, num_table, type);
+	return 0;
+}
+
+int produceProblemIntoTxt(int produce_num, int m, int r, int type) {
+	if ((m <= 0 || m > 3) && m != -1) {
+		cout << "please input m in 1~3" << endl;
+		return -1;
+	}
+	if ((r < 20 || r > 55) && r != -1) {
+		cout << "please input r in 20~55" << endl;
+		return -1;
+	}
+	int holeNums = 20;
+	if (m != -1) {
+		holeNums = (m == 1) ? 25 : (m == 2 ? 40 : 50);
+	}
+	else {
+		holeNums = r;
+	}
+	int count = produce_num;
+	int	trans_arr[9] = { 1,2,3,4,5,6,7,8,9 };	//用来交换的数字
+	int cols[9] = { 0,1,2,3,4,5,6,7,8 };	//用来交换的行
+	int sub;		//一个中间值，后面会用到
+	string table[9] = {			//数独模板
+		"912345678",
+		"678912345",
+		"345678912",
+		"123456789",
+		"789123456",
+		"456789123",
+		"891234567",
+		"567891234",
+		"234567891"
+	};
+	if (count <= 0 || count > 1000000) {
+		cout << "please input N which>0 and <=1000000" << endl;
+		return -1;
+	}
+	remove("./sudoku_finality.txt");
+	FILE* fp = fopen("./sudoku_finality.txt", "wt");
+	if (fp == NULL) {
+		cout << "err" << endl;
+		return -1;
+	}
+	STORE::count = 0;
+	memset(STORE::store, 0, sizeof(STORE::store));
+
+	int* res_m = new int[81];
+	memset(res_m, 0x0, sizeof(res_m));
+	do {//前两列的交换
+		do {//三到五列交换
+			do {//六到八列的交换
+				do {//前八个数字的交换
+					for (int i = 0; i < 9; i++) {
+						for (int j = 0; j < 9; j++) {
+							sub = (int)(table[cols[i]][j] - '0') - 1;
+							//将生成的数独终局保存在大数组中，空间换时间
+							res_m[i * 9 + j] = trans_arr[sub];
+						}
+					}
+					if (holeNums == -1) {
+						holeNums = 30;
+					}
+					digHoles(res_m, holeNums, type);
+					for (int i = 0; i < 9; i++) {
+						for (int j = 0; j < 9; j++) {
+							STORE::store[STORE::count++] = res_m[i * 9 + j] + '0';
+							if (j == 8)STORE::store[STORE::count++] = '\n';
+							else STORE::store[STORE::count++] = ' ';
+						}
+					}
+					STORE::store[STORE::count++] = '\n';
+					count--;
+					if (count <= 0) {
+						//生成结束，开始将大数组一次写入文件
+						fwrite(STORE::store, sizeof(char), STORE::count, fp);
+						cout << "over create finality" << endl;
+						fclose(fp);
+						return 0;
+					}
+				} while (next_permutation(trans_arr, trans_arr + 8));
+			} while (next_permutation(cols + 6, cols + 9));
+		} while (next_permutation(cols + 3, cols + 6));
+	} while (next_permutation(cols + 1, cols + 3));
+
+	cout << "over or err" << endl;
+	return 0;
+}
 
 int produceOutputIntoTxt(int produce_num) {		//本函数用于生成数独终局
 	int count = produce_num;

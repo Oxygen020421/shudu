@@ -1,0 +1,19 @@
+用例1 : shudu.exe -c 123
+
+用例2：shudu.exe -c 1000001
+
+用例3：shudu.exe -s ques.txt
+
+用例4：shudu.exe -n 10
+
+用例5：shudu.exe -n 1 -r 25
+
+用例6：shudu.exe -n 10 -m 1
+
+用例7：shudu.exe -n 10 -m 2
+
+用例8：shudu.exe -n 1 -m 3
+
+用例9：shudu.exe -n 20 -u
+
+用例10：shudu.exe -n 20 -u 50
